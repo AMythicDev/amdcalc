@@ -1,5 +1,5 @@
 #pragma once
-#include <cinttypes>
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>

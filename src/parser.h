@@ -1,5 +1,4 @@
 #pragma once
-
 #include "src/scanner.h"
 #include "src/solvetree.h"
 #include <vector>

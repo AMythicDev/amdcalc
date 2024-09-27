@@ -1,14 +1,14 @@
 #pragma once
-#include "src/scanner.h"
 #include <cstddef>
-#include <iostream>
-#include <vector>
+#include <cstdint>
+#include <optional>
 
 enum class OperationType {
-  Add,
   Sub,
+  Add,
   Mul,
   Div,
+  Exp,
 };
 
 class EvaluateNode {

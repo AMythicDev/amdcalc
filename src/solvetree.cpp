@@ -1,4 +1,5 @@
 #include "src/solvetree.h"
+#include <cmath>
 #include <optional>
 
 std::optional<std::int32_t> SolverTree::solve() {
@@ -22,5 +23,7 @@ std::int32_t OperationNode::eval() {
     return lhs->eval() * rhs->eval();
   case OperationType::Div:
     return lhs->eval() / rhs->eval();
+  case OperationType::Exp:
+    return pow(lhs->eval(), rhs->eval());
   }
 }
