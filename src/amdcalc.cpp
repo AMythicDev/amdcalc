@@ -5,7 +5,7 @@
 #include <string>
 
 int main(int argc, char *argv[]) {
-  std::string expression("30+9-6");
+  std::string expression("-30+9-6");
   Scanner tl(expression);
   std::vector<Token> token_list = tl.scan_tokens();
 

@@ -23,12 +23,18 @@ SolverTree StreamingTokenParser::generate_tree() {
     case TokenType::Add: {
       OperationNode *node = new OperationNode(OperationType::Add);
       node->lhs = st.root;
+      if (node->lhs == NULL) {
+        node->lhs = new NumericNode(0);
+      }
       st.root = node;
       break;
     }
     case TokenType::Subtract: {
       OperationNode *node = new OperationNode(OperationType::Sub);
       node->lhs = st.root;
+      if (node->lhs == NULL) {
+        node->lhs = new NumericNode(0);
+      }
       st.root = node;
       break;
     }
