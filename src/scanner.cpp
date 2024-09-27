@@ -43,13 +43,13 @@ Token Scanner::parseNumber(std::string::iterator &iter) {
   std::int32_t num = 0;
   int cur_digit = *iter - '0';
 
-  if (cur_digit > 0 && cur_digit < 10) {
+  if (cur_digit >= 0 && cur_digit < 10) {
     num += cur_digit;
     iter++;
     cur_digit = *iter - '0';
   }
 
-  while (cur_digit > 0 && cur_digit < 10) {
+  while (cur_digit >= 0 && cur_digit < 10) {
     num = num * 10 + cur_digit;
     iter++;
     cur_digit = *iter - '0';

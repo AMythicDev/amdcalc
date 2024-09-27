@@ -36,7 +36,7 @@ public:
 
 class SolverTree {
 public:
-  OperationNode *root = NULL;
+  EvaluateNode *root = NULL;
 
   std::optional<std::int32_t> solve();
 };
