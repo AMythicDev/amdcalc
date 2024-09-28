@@ -10,6 +10,7 @@ enum class TokenType {
   Subtract = '-',
   Multiply = '*',
   Divide = '/',
+  Exponent = '^',
   ParenOpen = '(',
   ParenClose = ')',
 };

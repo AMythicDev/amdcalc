@@ -28,6 +28,9 @@ std::ostream &operator<<(std::ostream &os, Token const &t) {
   case TokenType::Divide:
     op = "TokenType::Divide";
     break;
+  case TokenType::Exponent:
+    op = "TokenType::Exponent";
+    break;
   }
 
   if (t.value.has_value()) {
@@ -85,6 +88,9 @@ std::vector<Token> Scanner::scan_tokens() {
       break;
     case static_cast<int>(TokenType::ParenClose):
       token_list.push_back(Token{.type = TokenType::ParenClose});
+      break;
+    case static_cast<int>(TokenType::Exponent):
+      token_list.push_back(Token{.type = TokenType::Exponent});
       break;
     case static_cast<int>(' '):
       break;

@@ -90,6 +90,12 @@ SolverTree StreamingTokenParser::generate_tree() {
       curr_node = &node;
       break;
     }
+    case TokenType::Exponent: {
+      EvaluateNode *node = new OperationNode(OperationType::Exp);
+      attach_to_tree(node, curr_node, &st.root, OperationType::Exp);
+      curr_node = &node;
+      break;
+    }
     default:
       break;
     }
