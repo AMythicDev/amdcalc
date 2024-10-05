@@ -1,23 +1,23 @@
 #include "src/parser.h"
 #include "src/scanner.h"
 #include "src/solvetree.h"
+// #include <iostream>
 #include <stack>
 #include <vector>
 
-EvaluateNode **node_to_attach(EvaluateNode **node, EvaluateNode **root,
-                              OperationType op) {
-  if (*node == NULL)
-    return NULL;
-
+EvaluateNode **node_to_attach(EvaluateNode **node, OperationType op) {
   if ((*node)->is_numeric_node()) {
-    return node_to_attach(&(*node)->parent_node, root, op);
+    return node_to_attach(&(*node)->parent_node, op);
   }
+
+  if ((*node)->is_placeholder())
+    return node;
 
   OperationNode *node_to_check = dynamic_cast<OperationNode *>(*node);
 
   if (static_cast<std::uint8_t>(op) <
       static_cast<std::uint8_t>(node_to_check->op)) {
-    return node_to_attach(&(*node)->parent_node, root, op);
+    return node_to_attach(&(*node)->parent_node, op);
   }
 
   return node;
@@ -25,14 +25,12 @@ EvaluateNode **node_to_attach(EvaluateNode **node, EvaluateNode **root,
 
 void attach_to_tree(EvaluateNode *node, EvaluateNode **curr_node,
                     EvaluateNode **root, OperationType op) {
-  EvaluateNode **attach_node = node_to_attach(curr_node, root, op);
+  EvaluateNode **attach_node = node_to_attach(curr_node, op);
 
-  if (attach_node == NULL) {
-    node->lhs = *root;
-
+  if ((*attach_node)->is_placeholder()) {
+    node->lhs = (*attach_node)->lhs;
     node->parent_node = (*root)->parent_node;
-    (*root)->parent_node = node;
-
+    node->lhs->parent_node = node;
     *root = node;
     return;
   }
@@ -50,21 +48,18 @@ SolverTree StreamingTokenParser::generate_tree() {
 
   SolverTree st;
 
-  EvaluateNode **curr_node = NULL;
+  EvaluateNode **curr_node = &st.root;
 
   std::stack<EvaluateNode **> root_stack;
-
   root_stack.push(&st.root);
-
-  EvaluateNode *subtree_ptr = NULL;
 
   for (; iter != stream.end(); iter++) {
     switch (iter->type) {
     case TokenType::Numeric: {
       EvaluateNode *node = new NumericNode(iter->value.value());
-      if (*root_stack.top() == NULL) {
-        *root_stack.top() = node;
-        node->parent_node = subtree_ptr;
+      if ((*curr_node)->is_placeholder()) {
+        node->parent_node = (*curr_node);
+        (*curr_node)->lhs = node;
       } else {
         (*curr_node)->rhs = node;
         node->parent_node = *curr_node;
@@ -113,14 +108,19 @@ SolverTree StreamingTokenParser::generate_tree() {
       if ((*curr_node)->is_numeric_node()) {
         curr_node = &(*curr_node)->parent_node;
       }
-      subtree_ptr = *curr_node;
-      root_stack.push(&(*curr_node)->rhs);
-      curr_node = &(*curr_node)->rhs;
+      if ((*curr_node)->is_placeholder()) {
+        (*curr_node)->lhs = new PlaceholderNode();
+        curr_node = &(*curr_node)->lhs;
+      } else {
+        (*curr_node)->rhs = new PlaceholderNode();
+        curr_node = &(*curr_node)->rhs;
+      }
+      root_stack.push(curr_node);
       continue;
     }
     case TokenType::ParenClose: {
       if (root_stack.size() > 1) {
-        *curr_node = (*root_stack.top())->parent_node;
+        curr_node = &(*root_stack.top())->parent_node;
         root_stack.pop();
         break;
       }
@@ -128,7 +128,6 @@ SolverTree StreamingTokenParser::generate_tree() {
     default:
       break;
     }
-    subtree_ptr = NULL;
   }
 
   return st;
