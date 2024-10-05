@@ -20,6 +20,7 @@ public:
   virtual std::int32_t eval() = 0;
   virtual bool is_numeric_node() { return false; };
   virtual bool is_placeholder() { return false; };
+  virtual bool is_operation_node() { return false; };
 };
 
 class NumericNode : public EvaluateNode {
@@ -45,6 +46,7 @@ public:
   OperationNode(OperationType op) : op(op){};
 
   std::int32_t eval();
+  virtual bool is_operation_node() { return true; };
 };
 
 class SolverTree {

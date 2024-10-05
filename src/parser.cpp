@@ -1,7 +1,6 @@
 #include "src/parser.h"
 #include "src/scanner.h"
 #include "src/solvetree.h"
-// #include <iostream>
 #include <stack>
 #include <vector>
 
@@ -11,7 +10,18 @@ EvaluateNode **node_to_attach(EvaluateNode **node, OperationType op) {
   }
 
   if ((*node)->is_placeholder())
-    return node;
+    return NULL;
+
+  if ((*node)->is_operation_node() && (*node)->parent_node == NULL) {
+    OperationNode *node_to_check = dynamic_cast<OperationNode *>(*node);
+
+    if (static_cast<std::uint8_t>(op) <
+        static_cast<std::uint8_t>(node_to_check->op)) {
+      return NULL;
+    } else {
+      return node;
+    }
+  }
 
   OperationNode *node_to_check = dynamic_cast<OperationNode *>(*node);
 
@@ -27,8 +37,8 @@ void attach_to_tree(EvaluateNode *node, EvaluateNode **curr_node,
                     EvaluateNode **root, OperationType op) {
   EvaluateNode **attach_node = node_to_attach(curr_node, op);
 
-  if ((*attach_node)->is_placeholder()) {
-    node->lhs = (*attach_node)->lhs;
+  if (attach_node == NULL) {
+    node->lhs = (*root)->lhs;
     node->parent_node = (*root)->parent_node;
     node->lhs->parent_node = node;
     *root = node;
@@ -69,11 +79,10 @@ SolverTree StreamingTokenParser::generate_tree() {
     }
     case TokenType::Add: {
       EvaluateNode *node = new OperationNode(OperationType::Add);
-      node->lhs = *curr_node;
+      attach_to_tree(node, curr_node, root_stack.top(), OperationType::Add);
       if (node->lhs == NULL) {
         node->lhs = new NumericNode(0);
       }
-      attach_to_tree(node, curr_node, root_stack.top(), OperationType::Sub);
       curr_node = &node;
       break;
     }
@@ -108,15 +117,18 @@ SolverTree StreamingTokenParser::generate_tree() {
       if ((*curr_node)->is_numeric_node()) {
         curr_node = &(*curr_node)->parent_node;
       }
+
+      EvaluateNode *node = new PlaceholderNode();
+      node->parent_node = *curr_node;
       if ((*curr_node)->is_placeholder()) {
-        (*curr_node)->lhs = new PlaceholderNode();
+        (*curr_node)->lhs = node;
         curr_node = &(*curr_node)->lhs;
       } else {
-        (*curr_node)->rhs = new PlaceholderNode();
+        (*curr_node)->rhs = node;
         curr_node = &(*curr_node)->rhs;
       }
       root_stack.push(curr_node);
-      continue;
+      break;
     }
     case TokenType::ParenClose: {
       if (root_stack.size() > 1) {
