@@ -5,16 +5,20 @@
 #include <string>
 
 int main(int argc, char *argv[]) {
-  std::string expression("30+9*3+27/((3-2)*3^2)");
-  Scanner tl(expression);
-  std::vector<Token> token_list = tl.scan_tokens();
+  char expression[1024];
+  while (true) {
+    std::cout << "Calc: ";
+    std::cin.getline(expression, 1023);
+    Scanner tl(expression);
+    std::vector<Token> token_list = tl.scan_tokens();
 
-  StreamingTokenParser stp = StreamingTokenParser(token_list);
-  SolverTree st = stp.generate_tree();
+    StreamingTokenParser stp = StreamingTokenParser(token_list);
+    SolverTree st = stp.generate_tree();
 
-  std::optional<std::int32_t> res = st.solve();
+    std::optional<std::int32_t> res = st.solve();
 
-  std::cout << res.value() << std::endl;
+    std::cout << res.value() << std::endl;
+  }
 
   return 0;
 }

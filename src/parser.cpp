@@ -38,7 +38,7 @@ void attach_to_tree(EvaluateNode *node, EvaluateNode **curr_node,
   EvaluateNode **attach_node = node_to_attach(curr_node, op);
 
   if (attach_node == NULL) {
-    node->lhs = (*root)->lhs;
+    node->lhs = *root;
     node->parent_node = (*root)->parent_node;
     node->lhs->parent_node = node;
     *root = node;
