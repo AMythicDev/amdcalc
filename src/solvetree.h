@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -24,12 +25,21 @@ public:
 };
 
 class NumericNode : public EvaluateNode {
-  std::int32_t value;
-
 public:
+  std::int32_t value;
+  std::uint8_t decimal = 0;
+
   NumericNode(std::int32_t value) : value(value){};
+  NumericNode(std::int32_t value, std::uint8_t decimal)
+      : value(value), decimal(decimal){};
+
   std::int32_t eval() { return value; }
   bool is_numeric_node() { return true; }
+
+  friend NumericNode operator+(NumericNode const &n1, NumericNode const &n2);
+  friend NumericNode operator-(NumericNode const &n1, NumericNode const &n2);
+  friend NumericNode operator*(NumericNode const &n1, NumericNode const &n2);
+  friend bool operator==(NumericNode const &n1, NumericNode const &n2);
 };
 
 class PlaceholderNode : public EvaluateNode {
