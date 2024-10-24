@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     StreamingTokenParser stp = StreamingTokenParser(token_list);
     SolverTree st = stp.generate_tree();
 
-    std::optional<std::int32_t> res = st.solve();
+    std::optional<Value> res = st.solve();
 
     std::cout << res.value() << std::endl;
   }

@@ -1,4 +1,5 @@
 #pragma once
+#include "solvetree.h"
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -17,7 +18,7 @@ enum class TokenType {
 
 struct Token {
   TokenType type;
-  std::optional<std::int32_t> value;
+  std::optional<Value> value;
 };
 
 std::ostream &operator<<(std::ostream &os, Token const &t);

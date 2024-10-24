@@ -1,4 +1,5 @@
 #include "src/scanner.h"
+#include "solvetree.h"
 #include <iostream>
 #include <optional>
 #include <string>
@@ -34,7 +35,7 @@ std::ostream &operator<<(std::ostream &os, Token const &t) {
   }
 
   if (t.value.has_value()) {
-    val = std::to_string(t.value.value());
+    val = t.value.value().toString();
   } else {
     val = "null";
   }
@@ -43,20 +44,26 @@ std::ostream &operator<<(std::ostream &os, Token const &t) {
 }
 
 Token Scanner::parseNumber(std::string::iterator &iter) {
-  std::int32_t num = 0;
-  int cur_digit = *iter - '0';
+  char buff[16];
 
-  if (cur_digit >= 0 && cur_digit < 10) {
-    num += cur_digit;
+  bool got_decimal_point = false;
+  std::uint8_t index = 0;
+  do {
+    if (*iter == '.') {
+      if (!got_decimal_point) {
+        got_decimal_point = true;
+      } else {
+        // TODO throw exception
+      }
+    }
+    buff[index] = *iter;
     iter++;
-    cur_digit = *iter - '0';
-  }
+    index++;
+  } while (*iter == '.' || isdigit(*iter));
 
-  while (cur_digit >= 0 && cur_digit < 10) {
-    num = num * 10 + cur_digit;
-    iter++;
-    cur_digit = *iter - '0';
-  }
+  buff[index] = '\0';
+
+  Value num = Value(buff);
 
   return Token{.type = TokenType::Numeric, .value = std::optional(num)};
 }
@@ -66,7 +73,7 @@ std::vector<Token> Scanner::scan_tokens() {
   std::string::iterator iter = source.begin();
 
   while (iter != source.end()) {
-    if (isdigit(*iter)) {
+    if (isdigit(*iter) || *iter == '.') {
       token_list.push_back(parseNumber(iter));
       continue;
     }

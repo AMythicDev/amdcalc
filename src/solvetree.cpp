@@ -1,16 +1,16 @@
 #include "src/solvetree.h"
 #include <cmath>
-#include <optional>
+#include <decimal>
 
-std::optional<std::int32_t> SolverTree::solve() {
-  std::optional<std::int32_t> result;
+std::optional<Value> SolverTree::solve() {
+  std::optional<Value> result;
   if (root != NULL) {
     result = root->eval();
   }
   return result;
 }
 
-std::int32_t OperationNode::eval() {
+Value OperationNode::eval() {
   lhs = new NumericNode(lhs->eval());
   rhs = new NumericNode(rhs->eval());
 
@@ -24,6 +24,6 @@ std::int32_t OperationNode::eval() {
   case OperationType::Div:
     return lhs->eval() / rhs->eval();
   case OperationType::Exp:
-    return pow(lhs->eval(), rhs->eval());
+    return Value(pow(lhs->eval().toDouble(), rhs->eval().toDouble()));
   }
 }

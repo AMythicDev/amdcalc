@@ -81,7 +81,7 @@ SolverTree StreamingTokenParser::generate_tree() {
       EvaluateNode *node = new OperationNode(OperationType::Add);
       attach_to_tree(node, curr_node, root_stack.top(), OperationType::Add);
       if (node->lhs == NULL) {
-        node->lhs = new NumericNode(0);
+        node->lhs = new NumericNode(Value(0.0));
       }
       curr_node = &node;
       break;
