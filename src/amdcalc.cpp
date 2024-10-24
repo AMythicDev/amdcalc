@@ -2,6 +2,7 @@
 #include "src/scanner.h"
 #include "src/solvetree.h"
 #include <iostream>
+#include <string>
 
 int main(int argc, char *argv[]) {
   char expression[1024];
