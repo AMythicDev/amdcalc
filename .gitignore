@@ -33,3 +33,5 @@
 
 # Meson
 .cache/
+subprojects/*
+!subprojects/*.wrap
