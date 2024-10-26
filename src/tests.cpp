@@ -36,5 +36,11 @@ TEST_CASE("Complex arithmatic") {
   CHECK(solve_expression("5^2*4").compare(Value(100)));
   CHECK(solve_expression("5^2*4*1/2+8").compare(Value(58)));
   CHECK(solve_expression("5^2*4*1/(2+8)").compare(Value(100)));
-  // CHECK(solve_expression("5^2*4*1/(2+8)*(-1)").compare(Value(-10)));
+  CHECK(solve_expression("5^2*4*1/(2+8)*(-1)").compare(Value(-10)));
+  CHECK(solve_expression("5^2*4*1/(2+8)*(-1)+10+((10*12)-10)")
+            .compare(Value(110)));
+  CHECK(solve_expression("5^2*4*1/(2+8)*(-1)+10+((10*12)-(10*10))")
+            .compare(Value(20)));
+  CHECK(solve_expression("5^2*4*1/(2+8)*(-1)+10+(((10*12)))")
+            .compare(Value(120)));
 }
