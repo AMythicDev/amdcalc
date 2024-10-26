@@ -1,6 +1,5 @@
 #pragma once
 #include "solvetree.h"
-#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
@@ -24,11 +23,11 @@ struct Token {
 std::ostream &operator<<(std::ostream &os, Token const &t);
 
 class Scanner {
-  std::string source;
+  const std::string source;
 
-  Token parseNumber(std::string::iterator &iter);
+  Token parseNumber(std::string::const_iterator &iter);
 
 public:
-  Scanner(std::string source) : source(source) {}
+  Scanner(const std::string source) : source(source) {}
   std::vector<Token> scan_tokens();
 };

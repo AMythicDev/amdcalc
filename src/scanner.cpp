@@ -43,7 +43,7 @@ std::ostream &operator<<(std::ostream &os, Token const &t) {
   return os << "Token(type: " << op << ", value: " << val << ")";
 }
 
-Token Scanner::parseNumber(std::string::iterator &iter) {
+Token Scanner::parseNumber(std::string::const_iterator &iter) {
   char buff[16];
 
   bool got_decimal_point = false;
@@ -70,7 +70,7 @@ Token Scanner::parseNumber(std::string::iterator &iter) {
 
 std::vector<Token> Scanner::scan_tokens() {
   std::vector<Token> token_list;
-  std::string::iterator iter = source.begin();
+  std::string::const_iterator iter = source.begin();
 
   while (iter != source.end()) {
     if (isdigit(*iter) || *iter == '.') {
