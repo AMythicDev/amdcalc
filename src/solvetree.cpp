@@ -1,6 +1,7 @@
 #include "src/solvetree.h"
 #include <cmath>
 #include <decimal>
+#include <memory>
 
 std::optional<Value> SolverTree::solve() {
   std::optional<Value> result;
@@ -11,8 +12,8 @@ std::optional<Value> SolverTree::solve() {
 }
 
 Value OperationNode::eval() {
-  lhs = new NumericNode(lhs->eval());
-  rhs = new NumericNode(rhs->eval());
+  lhs = std::unique_ptr<EvaluateNode>(new NumericNode(lhs->eval()));
+  rhs = std::unique_ptr<EvaluateNode>(new NumericNode(rhs->eval()));
 
   switch (op) {
   case OperationType::Add:

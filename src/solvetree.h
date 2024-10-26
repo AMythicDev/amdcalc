@@ -1,6 +1,7 @@
 #pragma once
 #include <cstddef>
 #include <decimal>
+#include <memory>
 #include <optional>
 
 enum class OperationType {
@@ -15,9 +16,9 @@ typedef dec::DecDouble Value;
 
 class EvaluateNode {
 public:
-  EvaluateNode *lhs = NULL;
-  EvaluateNode *rhs = NULL;
-  EvaluateNode *parent_node = NULL;
+  std::unique_ptr<EvaluateNode> lhs = NULL;
+  std::unique_ptr<EvaluateNode> rhs = NULL;
+  std::unique_ptr<EvaluateNode> *parent_node = NULL;
 
   virtual Value eval() = 0;
   virtual bool is_numeric_node() { return false; };
@@ -54,7 +55,7 @@ public:
 
 class SolverTree {
 public:
-  EvaluateNode *root = new PlaceholderNode();
+  std::unique_ptr<EvaluateNode> root = std::make_unique<PlaceholderNode>();
 
   std::optional<Value> solve();
 };
