@@ -24,6 +24,7 @@ public:
   virtual bool is_numeric_node() { return false; };
   virtual bool is_placeholder() { return false; };
   virtual bool is_operation_node() { return false; };
+  virtual ~EvaluateNode() = default;
 };
 
 class NumericNode : public EvaluateNode {
