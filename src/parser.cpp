@@ -1,7 +1,6 @@
 #include "src/parser.h"
 #include "src/scanner.h"
 #include "src/solvetree.h"
-#include <iostream>
 #include <memory>
 #include <stack>
 #include <vector>
@@ -9,17 +8,10 @@
 std::unique_ptr<EvaluateNode> *
 node_to_attach(std::unique_ptr<EvaluateNode> *node, OperationType op) {
   if (node == NULL || (*node)->is_placeholder()) {
-    // if (op == OperationType::Div) {
-    //   std::cout << "div" << std::endl;
-    // }
     return NULL;
   }
 
   if ((*node)->is_numeric_node()) {
-    // if (op == OperationType::Div) {
-    // std::cout << (*node)->eval() << std::endl;
-    // std::cout << ((*node)->parent_node == NULL) << std::endl;
-    // }
     return node_to_attach((*node)->parent_node, op);
   }
 
@@ -140,7 +132,11 @@ SolverTree StreamingTokenParser::generate_tree() {
     }
     case TokenType::ParenOpen: {
       if ((*curr_node)->is_numeric_node()) {
-        curr_node = (*curr_node)->parent_node;
+        std::unique_ptr<EvaluateNode> node =
+            std::make_unique<OperationNode>(OperationType::Mul);
+        root_change = attach_to_tree(std::move(node), &curr_node,
+                                     root_stack.top(), OperationType::Mul);
+        // curr_node = (*curr_node)->parent_node;
       }
 
       std::unique_ptr<EvaluateNode> node = std::make_unique<PlaceholderNode>();

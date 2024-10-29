@@ -58,5 +58,7 @@ class SolverTree {
 public:
   std::unique_ptr<EvaluateNode> root = std::make_unique<PlaceholderNode>();
 
+  ~SolverTree() = default;
+
   std::optional<Value> solve();
 };
