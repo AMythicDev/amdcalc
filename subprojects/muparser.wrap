@@ -1,0 +1,6 @@
+[wrap-git]
+url = https://github.com/beltoforion/muparser
+revision = head
+depth = 1
+clone-recursive = true
+method = cmake

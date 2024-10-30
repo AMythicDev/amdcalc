@@ -4,26 +4,10 @@ project(
   default_options: ['cpp_std=c++17'],
 )
 
-decimal = subproject('CppDecimal').get_variable('decimal_dep')
-doctest = subproject('doctest').get_variable('doctest_dep')
+muparser = subproject('muparser').get_variable('muparser_dep')
 
-amdcalc = static_library(
+executable(
   'amdcalc',
-  [
-    'src/scanner.cpp',
-    'src/solvetree.cpp',
-    'src/parser.cpp',
-  ],
-  dependencies: decimal,
+  'src/amdcalc.cpp',
+  dependencies: [muparser],
 )
-
-executable('amdcalc', 'src/amdcalc.cpp', link_with: amdcalc, dependencies: decimal)
-
-testrunner = executable(
-  'amdcalc_test',
-  'src/tests.cpp',
-  dependencies: [doctest, decimal],
-  link_with: amdcalc,
-)
-
-test('Amdcalc test', testrunner)
