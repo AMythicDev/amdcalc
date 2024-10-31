@@ -6,8 +6,11 @@ project(
 
 muparser = subproject('muparser').get_variable('muparser_dep')
 
+amdcalc = static_library('amdcalc', ['src/amdcalc.cpp'], dependencies: [muparser])
+
 executable(
   'amdcalc',
-  'src/amdcalc.cpp',
+  'src/cli.cpp',
+  link_with: amdcalc,
   dependencies: [muparser],
 )

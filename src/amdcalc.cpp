@@ -1,47 +1,40 @@
-#include <iostream>
-#include <muParser.h>
+#include "amdcalc.h"
+#include "muParserDef.h"
+#include <cstdint>
+#include <cstring>
 
-class VariableManager {
-  double variable_storage[100];
-  uint8_t var_count = 0;
+double *VariableManager::add_variable(const char *var_name) {
+  if (var_count > 99)
+    throw mu::ParserError("Variable buffer overflow.");
+  variable_storage[var_count] = 0;
+  double *addr = &variable_storage[var_count];
+  var_count++;
+  return addr;
+}
 
-public:
-  double *add_variable(const char *var_name) {
-    if (var_count > 99)
-      throw mu::ParserError("Variable buffer overflow.");
-    variable_storage[var_count] = 0;
-    var_count++;
-    return &variable_storage[var_count];
-  }
+void VariableManager::reset() {
+  memset(variable_storage, 0, MAX_VARIABLE_COUNT);
+  var_count = 0;
+}
 
-  void reset() { var_count = 0; }
+double *VariableManager::add_variable_to_instance(const char *var_name,
+                                                  void *vm_ptr) {
+  VariableManager *vm = (VariableManager *)vm_ptr;
+  return vm->add_variable(var_name);
+}
 
-  static double *add_variable_to_instance(const char *var_name, void *vm_ptr) {
-    VariableManager *vm = (VariableManager *)vm_ptr;
-    return vm->add_variable(var_name);
-  }
-};
-
-int main(int argc, char *argv[]) {
-  char expression[1024];
-  mu::Parser parser;
-  VariableManager vm;
+ExpressionSolver::ExpressionSolver() {
   parser.SetVarFactory(&VariableManager::add_variable_to_instance, &vm);
-  while (true) {
-    std::cout << "Calc: ";
-    std::cin.getline(expression, 1024);
+}
 
-    parser.SetExpr(expression);
-    double res;
-    try {
-      res = parser.Eval();
-    } catch (mu::Parser::exception_type &e) {
-      std::cout << '\n' << e.GetMsg() << std::endl;
-      return -1;
-    }
-    std::cout << res << std::endl;
-    vm.reset();
+void ExpressionSolver::set_expression(const std::string &exp) {
+  parser.SetExpr(exp);
+}
+
+void ExpressionSolver::eval() {
+  mu::value_type *v = parser.Eval((int &)eval_count);
+
+  for (uint16_t i = 0; i < eval_count; i++) {
+    eval_arr[i] = v[i];
   }
-
-  return 0;
 }
