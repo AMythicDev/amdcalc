@@ -34,6 +34,7 @@ public:
 
     reference operator*() const { return *m_ptr; }
     pointer operator->() const { return m_ptr; }
+    reference operator[](uint16_t idx) { return base[idx]; }
     EvaluationIterator &operator++() {
       m_ptr++;
       return *this;
@@ -54,6 +55,7 @@ public:
 
   private:
     pointer m_ptr;
+    pointer base;
   };
 
   ExpressionSolver();
