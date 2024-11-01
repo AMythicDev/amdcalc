@@ -6,9 +6,9 @@
 #include "cpp-terminal/tty.hpp"
 #include <cpp-terminal/event.hpp>
 #include <cpp-terminal/terminal.hpp>
-#include <cstdint>
 #include <iomanip>
 #include <iostream>
+#include <optional>
 #include <string>
 
 template <typename T> T saturating_sub(T n1, T n2) {
@@ -18,9 +18,33 @@ template <typename T> T saturating_sub(T n1, T n2) {
   return n1 - n2;
 }
 
-inline void handle_key_event(Term::Key key, std::string &expression,
-                             std::uint16_t &insertion_col, bool &corfirm,
-                             bool &quit) {
+struct History {
+  std::string list[256];
+  std::uint8_t index = 0;
+  std::uint8_t entries = 0;
+
+  void append(std::string &expression) {
+    list[entries] = expression;
+    index++;
+    entries++;
+  }
+  std::optional<std::string> previous() {
+    if (index == 0) {
+      return std::nullopt;
+    }
+    return list[--index];
+  }
+  std::optional<std::string> next() {
+    if (index == entries - 1) {
+      return std::nullopt;
+    }
+    return list[++index];
+  }
+  void reset() { index = entries; }
+};
+
+void handle_key_event(Term::Key key, std::string &expression, History &history,
+                      std::uint16_t &insertion_col, bool &corfirm, bool &quit) {
   switch (key) {
   case Term::Key::Ctrl_C: {
     quit = true;
@@ -79,6 +103,30 @@ inline void handle_key_event(Term::Key key, std::string &expression,
     std::cout.flush();
     break;
   }
+  case Term::Key::ArrowUp: {
+    std::uint16_t to_move = expression.length();
+    if (to_move != 0)
+      std::cout << Term::cursor_left(to_move) << Term::clear_eol();
+    std::optional<std::string> prev = history.previous();
+    if (prev.has_value()) {
+      expression = prev.value();
+    }
+    std::cout << expression;
+    std::cout.flush();
+    break;
+  }
+  case Term::Key::ArrowDown: {
+    std::uint16_t to_move = expression.length();
+    if (to_move != 0)
+      std::cout << Term::cursor_left(to_move) << Term::clear_eol();
+    std::optional<std::string> next = history.next();
+    if (next.has_value()) {
+      expression = next.value();
+    }
+    std::cout << expression;
+    std::cout.flush();
+    break;
+  }
   default: {
     if (key.isprint()) {
       expression.insert(insertion_col++, 1, key.name().c_str()[0]);
@@ -106,10 +154,12 @@ int main(int argc, char *argv[]) {
 
   bool quit = false;
   bool confirm = false;
+  History history;
 
   while (!quit) {
     insertion_col = 0;
     confirm = false;
+    expression.clear();
 
     std::cout << "Calc: ";
     std::cout.flush();
@@ -118,9 +168,11 @@ int main(int argc, char *argv[]) {
       Term::Event event = Term::read_event();
       if (event.type() == Term::Event::Type::Key) {
         Term::Key key(event);
-        handle_key_event(key, expression, insertion_col, confirm, quit);
+        handle_key_event(key, expression, history, insertion_col, confirm,
+                         quit);
       }
       if (confirm) {
+        history.append(expression);
         std::cout << std::endl;
       }
       if (quit) {
@@ -141,4 +193,6 @@ int main(int argc, char *argv[]) {
       std::cout << it << std::endl;
     }
   }
+
+  return 0;
 }
