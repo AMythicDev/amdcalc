@@ -1,0 +1,6 @@
+[wrap-git]
+url = https://github.com/jupyter-xeus/cpp-terminal
+revision = head
+depth = 1
+clone-recursive = true
+method = cmake
