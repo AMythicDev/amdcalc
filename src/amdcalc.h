@@ -16,9 +16,10 @@ public:
 };
 
 class ExpressionSolver {
+  const static uint16_t MAX_EVALUATION_ARRAY_SIZE = 256;
   mu::Parser parser;
   VariableManager vm;
-  double eval_arr[256];
+  double eval_arr[MAX_EVALUATION_ARRAY_SIZE];
   uint16_t eval_count = 0;
 
 public:
