@@ -27,13 +27,13 @@ public:
     using iterator_category = std::random_access_iterator_tag;
     using difference_type = std::ptrdiff_t;
     using value_type = double;
-    using pointer = double *;
-    using reference = double &;
+    using pointer = const double *;
+    using reference = const double &;
 
-    EvaluationIterator(pointer ptr) : m_ptr(ptr) {}
+    explicit EvaluationIterator(pointer ptr) : m_ptr(ptr), base(ptr) {}
 
     reference operator*() const { return *m_ptr; }
-    pointer operator->() { return m_ptr; }
+    pointer operator->() const { return m_ptr; }
     EvaluationIterator &operator++() {
       m_ptr++;
       return *this;
@@ -59,6 +59,8 @@ public:
   ExpressionSolver();
   void set_expression(const std::string &exp);
   void eval();
-  EvaluationIterator begin() { return EvaluationIterator(&eval_arr[0]); }
-  EvaluationIterator end() { return EvaluationIterator(&eval_arr[eval_count]); }
+  EvaluationIterator begin() const { return EvaluationIterator(&eval_arr[0]); }
+  EvaluationIterator end() const {
+    return EvaluationIterator(&eval_arr[eval_count]);
+  }
 };

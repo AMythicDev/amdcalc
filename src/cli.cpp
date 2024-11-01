@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
       std::cout << '\n' << e.GetMsg() << std::endl;
       return -1;
     }
-    for (double &it : solver) {
+    for (double it : solver) {
       std::cout << it << std::endl;
     }
   }
