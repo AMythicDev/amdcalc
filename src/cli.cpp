@@ -115,12 +115,17 @@ void handle_key_event(Term::Key key, std::string **expression, History &history,
 }
 
 int main(int argc, char *argv[]) {
-  Term::terminal.setOptions(Term::Option::NoClearScreen,
-                            Term::Option::NoSignalKeys, Term::Option::Cursor,
-                            Term::Option::Raw);
-  if (!Term::is_stdin_a_tty()) {
-    throw Term::Exception("The terminal is not attached to a TTY and therefore "
-                          "can't catch user input. Exiting...");
+  try {
+    Term::terminal.setOptions(Term::Option::NoClearScreen,
+                              Term::Option::NoSignalKeys, Term::Option::Cursor,
+                              Term::Option::Raw);
+    if (!Term::is_stdin_a_tty()) {
+      throw Term::Exception(
+          "The terminal is not attached to a TTY and therefore "
+          "can't catch user input. Exiting...");
+    }
+  } catch (Term::Exception &e) {
+    std::cout << e.what() << std::endl;
   }
 
   History history;
