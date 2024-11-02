@@ -2,6 +2,7 @@
 #include "muParserDef.h"
 #include <cstdint>
 #include <cstring>
+#include <string>
 
 double *VariableManager::add_variable(const char *var_name) {
   if (var_count > 99)
@@ -24,6 +25,8 @@ double *VariableManager::add_variable_to_instance(const char *var_name,
 }
 
 ExpressionSolver::ExpressionSolver() {
+  parser.DefineNameChars(
+      "0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ$");
   parser.SetVarFactory(&VariableManager::add_variable_to_instance, &vm);
 }
 
@@ -32,9 +35,19 @@ void ExpressionSolver::set_expression(const std::string &exp) {
 }
 
 void ExpressionSolver::eval() {
+  // HACK: Due to some reason parser.Eval resets total_expr_count to 0. Until
+  // this is fixed we have a workaround to copy total_expr_count and reset back
+  // to it after parser.Eval is done.
+  std::uint16_t total_expr_count_copy = total_expr_count;
   mu::value_type *v = parser.Eval((int &)eval_count);
-
+  total_expr_count = total_expr_count_copy;
   for (uint16_t i = 0; i < eval_count; i++) {
     eval_arr[i] = v[i];
   }
+
+  total_expr_count++;
+  std::string var_name;
+  var_name.append("$");
+  var_name.append(std::to_string(total_expr_count));
+  parser.DefineVar(var_name, &eval_arr[eval_count - 1]);
 }

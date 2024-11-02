@@ -5,8 +5,10 @@
 #include <muParser.h>
 #include <optional>
 
+#define MAX_VARIABLE_COUNT 2048
+#define MAX_EVALUATION_ARRAY_SIZE 256
+
 class VariableManager {
-  const static uint16_t MAX_VARIABLE_COUNT = 256;
   double variable_storage[MAX_VARIABLE_COUNT];
   uint8_t var_count = 0;
 
@@ -17,11 +19,11 @@ public:
 };
 
 class ExpressionSolver {
-  const static uint16_t MAX_EVALUATION_ARRAY_SIZE = 256;
   mu::Parser parser;
   VariableManager vm;
   double eval_arr[MAX_EVALUATION_ARRAY_SIZE];
   uint16_t eval_count = 0;
+  uint16_t total_expr_count = 0;
 
 public:
   struct EvaluationIterator {
@@ -66,6 +68,7 @@ public:
   EvaluationIterator end() const {
     return EvaluationIterator(&eval_arr[eval_count]);
   }
+  uint16_t get_total_exp_count() { return total_expr_count; }
 };
 
 struct History {

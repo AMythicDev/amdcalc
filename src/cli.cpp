@@ -18,31 +18,6 @@ template <typename T> T saturating_sub(T n1, T n2) {
   return n1 - n2;
 }
 
-struct History {
-  std::string list[256];
-  std::uint8_t index = 0;
-  std::uint8_t entries = 0;
-
-  std::optional<std::string *> previous() {
-    if (index == 0) {
-      return std::nullopt;
-    }
-    return &list[--index];
-  }
-  std::optional<std::string *> next() {
-    if (index >= entries) {
-      return std::nullopt;
-    }
-    return &list[++index];
-  }
-  std::string *top() { return &list[entries]; }
-  void confirm_current_expression() {
-    entries++;
-    index++;
-  }
-  void reset() { index = entries; }
-};
-
 void handle_key_event(Term::Key key, std::string **expression, History &history,
                       std::uint16_t &insertion_col, bool &corfirm, bool &quit) {
   switch (key) {
@@ -162,7 +137,7 @@ int main(int argc, char *argv[]) {
     insertion_col = 0;
     confirm = false;
 
-    std::cout << "Calc: ";
+    std::cout << '$' << solver.get_total_exp_count() + 1 << ": ";
     std::cout.flush();
 
     while (!quit && !confirm) {
@@ -182,7 +157,7 @@ int main(int argc, char *argv[]) {
     }
     std::cout.flush();
 
-    solver.set_expression(*history.top());
+    solver.set_expression(**expression);
     try {
       solver.eval();
     } catch (mu::Parser::exception_type &e) {
