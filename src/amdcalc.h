@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <iterator>
 #include <muParser.h>
+#include <optional>
 
 class VariableManager {
   const static uint16_t MAX_VARIABLE_COUNT = 256;
@@ -65,4 +66,29 @@ public:
   EvaluationIterator end() const {
     return EvaluationIterator(&eval_arr[eval_count]);
   }
+};
+
+struct History {
+  std::string list[256];
+  std::uint8_t index = 0;
+  std::uint8_t entries = 0;
+
+  std::optional<std::string *> previous() {
+    if (index == 0) {
+      return std::nullopt;
+    }
+    return &list[--index];
+  }
+  std::optional<std::string *> next() {
+    if (index >= entries) {
+      return std::nullopt;
+    }
+    return &list[++index];
+  }
+  std::string *top() { return &list[entries]; }
+  void confirm_current_expression() {
+    entries++;
+    index++;
+  }
+  void reset() { index = entries; }
 };
