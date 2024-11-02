@@ -23,27 +23,27 @@ struct History {
   std::uint8_t index = 0;
   std::uint8_t entries = 0;
 
-  void append(std::string &expression) {
-    list[entries] = expression;
-    index++;
-    entries++;
-  }
-  std::optional<std::string> previous() {
+  std::optional<std::string *> previous() {
     if (index == 0) {
       return std::nullopt;
     }
-    return list[--index];
+    return &list[--index];
   }
-  std::optional<std::string> next() {
-    if (index == entries - 1) {
+  std::optional<std::string *> next() {
+    if (index >= entries) {
       return std::nullopt;
     }
-    return list[++index];
+    return &list[++index];
+  }
+  std::string *top() { return &list[entries]; }
+  void confirm_current_expression() {
+    entries++;
+    index++;
   }
   void reset() { index = entries; }
 };
 
-void handle_key_event(Term::Key key, std::string &expression, History &history,
+void handle_key_event(Term::Key key, std::string **expression, History &history,
                       std::uint16_t &insertion_col, bool &corfirm, bool &quit) {
   switch (key) {
   case Term::Key::Ctrl_C: {
@@ -62,24 +62,24 @@ void handle_key_event(Term::Key key, std::string &expression, History &history,
     if (insertion_col == 0) {
       break;
     }
-    expression.erase(--insertion_col, 1);
+    (*expression)->erase(--insertion_col, 1);
     std::cout << Term::cursor_left(1) << Term::clear_eol()
-              << expression.substr(insertion_col);
+              << (*expression)->substr(insertion_col);
     std::uint16_t to_move =
-        saturating_sub((std::uint16_t)expression.length(), insertion_col);
+        saturating_sub((std::uint16_t)(*expression)->length(), insertion_col);
     if (to_move != 0)
       std::cout << Term::cursor_left(to_move);
     std::cout.flush();
     break;
   }
   case Term::Key::Del: {
-    if (insertion_col == expression.length()) {
+    if (insertion_col == (*expression)->length()) {
       break;
     }
-    expression.erase(insertion_col, 1);
-    std::cout << Term::clear_eol() << expression.substr(insertion_col);
+    (*expression)->erase(insertion_col, 1);
+    std::cout << Term::clear_eol() << (*expression)->substr(insertion_col);
     std::uint16_t to_move =
-        saturating_sub((std::uint16_t)expression.length(), insertion_col);
+        saturating_sub((std::uint16_t)(*expression)->length(), insertion_col);
     if (to_move != 0)
       std::cout << Term::cursor_left(to_move);
     std::cout.flush();
@@ -95,7 +95,7 @@ void handle_key_event(Term::Key key, std::string &expression, History &history,
     break;
   }
   case Term::Key::ArrowRight: {
-    if (insertion_col == expression.length()) {
+    if (insertion_col == (*expression)->length()) {
       break;
     }
     insertion_col++;
@@ -104,33 +104,34 @@ void handle_key_event(Term::Key key, std::string &expression, History &history,
     break;
   }
   case Term::Key::ArrowUp: {
-    std::uint16_t to_move = expression.length();
+    std::uint16_t to_move = (*expression)->length();
     if (to_move != 0)
       std::cout << Term::cursor_left(to_move) << Term::clear_eol();
-    std::optional<std::string> prev = history.previous();
+    std::optional<std::string *> prev = history.previous();
     if (prev.has_value()) {
-      expression = prev.value();
+      *expression = prev.value();
     }
-    std::cout << expression;
+    std::cout << **expression;
     std::cout.flush();
     break;
   }
   case Term::Key::ArrowDown: {
-    std::uint16_t to_move = expression.length();
+    std::uint16_t to_move = (*expression)->length();
     if (to_move != 0)
       std::cout << Term::cursor_left(to_move) << Term::clear_eol();
-    std::optional<std::string> next = history.next();
+    std::optional<std::string *> next = history.next();
     if (next.has_value()) {
-      expression = next.value();
+      *expression = next.value();
     }
-    std::cout << expression;
+    std::cout << **expression;
     std::cout.flush();
     break;
   }
   default: {
     if (key.isprint()) {
-      expression.insert(insertion_col++, 1, key.name().c_str()[0]);
-      std::cout << Term::clear_eol() << expression.substr(insertion_col - 1);
+      (*expression)->insert(insertion_col++, 1, key.name().c_str()[0]);
+      std::cout << Term::clear_eol()
+                << (*expression)->substr(insertion_col - 1);
       std::cout.flush();
     }
     break;
@@ -147,19 +148,19 @@ int main(int argc, char *argv[]) {
                           "can't catch user input. Exiting...");
   }
 
-  std::string expression;
+  History history;
   std::uint16_t insertion_col = 0;
   std::cout << std::setprecision(7);
   ExpressionSolver solver;
 
   bool quit = false;
   bool confirm = false;
-  History history;
 
   while (!quit) {
+    std::string *curr = history.top();
+    std::string **expression = &curr;
     insertion_col = 0;
     confirm = false;
-    expression.clear();
 
     std::cout << "Calc: ";
     std::cout.flush();
@@ -172,7 +173,6 @@ int main(int argc, char *argv[]) {
                          quit);
       }
       if (confirm) {
-        history.append(expression);
         std::cout << std::endl;
       }
       if (quit) {
@@ -182,7 +182,7 @@ int main(int argc, char *argv[]) {
     }
     std::cout.flush();
 
-    solver.set_expression(expression);
+    solver.set_expression(*history.top());
     try {
       solver.eval();
     } catch (mu::Parser::exception_type &e) {
@@ -192,6 +192,8 @@ int main(int argc, char *argv[]) {
     for (double it : solver) {
       std::cout << it << std::endl;
     }
+    history.confirm_current_expression();
+    history.reset();
   }
 
   return 0;
