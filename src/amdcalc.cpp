@@ -2,6 +2,7 @@
 #include "muParserDef.h"
 #include <cstdint>
 #include <cstring>
+#include <optional>
 #include <string>
 
 double *VariableManager::add_variable(const char *var_name) {
@@ -14,7 +15,7 @@ double *VariableManager::add_variable(const char *var_name) {
 }
 
 void VariableManager::reset() {
-  memset(variable_storage, 0, MAX_VARIABLE_COUNT);
+  memset(variable_storage, 0, MAX_VARIABLE_COUNT * sizeof(double));
   var_count = 0;
 }
 
@@ -50,4 +51,55 @@ void ExpressionSolver::eval() {
   var_name.append("$");
   var_name.append(std::to_string(total_expr_count));
   parser.DefineVar(var_name, &eval_arr[eval_count - 1]);
+}
+
+template <typename T> T History::wrapping_add(T num) {
+  if (num == HISTORY_CAPACITY - 1)
+    return 0;
+  else
+    return num + 1;
+}
+
+template <typename T> T History::wrapping_sub(T num) {
+  if (num == 0)
+    return HISTORY_CAPACITY - 1;
+  else
+    return num - 1;
+}
+
+std::optional<std::string *> History::next() {
+  if (index == head && !covering_before_end) {
+    return std::nullopt;
+  }
+  index = History::wrapping_add(index);
+  if (index == 0) {
+    covering_before_end = false;
+  }
+  return &list[index];
+}
+
+std::optional<std::string *> History::previous() {
+  if (index == tail + 1 && covering_before_end) {
+    return std::nullopt;
+  }
+  if (index == 0 && !is_filled) {
+    return std::nullopt;
+  }
+  index = History::wrapping_sub(index);
+  if (index == HISTORY_CAPACITY - 1) {
+    covering_before_end = true;
+  }
+  return &list[index];
+}
+
+void History::confirm_current_expression() {
+  head = History::wrapping_add(head);
+  if (is_filled) {
+    tail = History::wrapping_add(tail);
+  }
+  if (head == 0) {
+    is_filled = true;
+  }
+
+  index = head;
 }

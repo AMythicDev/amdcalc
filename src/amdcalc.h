@@ -1,12 +1,14 @@
 #pragma once
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <iterator>
 #include <muParser.h>
 #include <optional>
 
 #define MAX_VARIABLE_COUNT 2048
 #define MAX_EVALUATION_ARRAY_SIZE 256
+#define HISTORY_CAPACITY 3
 
 class VariableManager {
   double variable_storage[MAX_VARIABLE_COUNT];
@@ -71,27 +73,22 @@ public:
   uint16_t get_total_exp_count() { return total_expr_count; }
 };
 
-struct History {
-  std::string list[256];
+class History {
+private:
+  std::string list[HISTORY_CAPACITY];
+  std::uint8_t head = 0;
+  std::uint8_t tail = 0;
   std::uint8_t index = 0;
-  std::uint8_t entries = 0;
+  bool is_filled = false;
+  bool covering_before_end = false;
 
-  std::optional<std::string *> previous() {
-    if (index == 0) {
-      return std::nullopt;
-    }
-    return &list[--index];
-  }
-  std::optional<std::string *> next() {
-    if (index >= entries) {
-      return std::nullopt;
-    }
-    return &list[++index];
-  }
-  std::string *top() { return &list[entries]; }
-  void confirm_current_expression() {
-    entries++;
-    index++;
-  }
-  void reset() { index = entries; }
+  template <typename T> static T wrapping_add(T num);
+  template <typename T> static T wrapping_sub(T num);
+
+public:
+  std::optional<std::string *> previous();
+  std::optional<std::string *> next();
+  std::string *top() { return &list[head]; }
+  void confirm_current_expression();
+  void reset() { index = head; }
 };

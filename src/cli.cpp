@@ -92,8 +92,9 @@ void handle_key_event(Term::Key key, std::string **expression, History &history,
   }
   case Term::Key::ArrowDown: {
     std::uint16_t to_move = (*expression)->length();
-    if (to_move != 0)
+    if (to_move != 0) {
       std::cout << Term::cursor_left(to_move) << Term::clear_eol();
+    }
     std::optional<std::string *> next = history.next();
     if (next.has_value()) {
       *expression = next.value();
@@ -138,6 +139,7 @@ int main(int argc, char *argv[]) {
 
   while (!quit) {
     std::string *curr = history.top();
+    curr->clear();
     std::string **expression = &curr;
     insertion_col = 0;
     confirm = false;
