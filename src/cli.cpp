@@ -4,6 +4,7 @@
 #include "cpp-terminal/input.hpp"
 #include "cpp-terminal/key.hpp"
 #include "cpp-terminal/tty.hpp"
+#include "muParser.h"
 #include <cpp-terminal/event.hpp>
 #include <cpp-terminal/terminal.hpp>
 #include <iomanip>
@@ -172,6 +173,8 @@ int main(int argc, char *argv[]) {
     } catch (mu::Parser::exception_type &e) {
       std::cout << '\n' << e.GetMsg() << std::endl;
       return -1;
+    } catch (SpecialVariableAssignment &e) {
+      std::cout << "Error: " << e.what() << std::endl;
     }
     for (double it : solver) {
       std::cout << it << std::endl;

@@ -5,9 +5,20 @@
 #include <optional>
 #include <string>
 
+SpecialVariableAssignment::SpecialVariableAssignment(const char *vname) {
+  strcpy(var_name, vname);
+  strcpy(message, "Assignment to special variable '");
+  strcat(message, var_name);
+  strcat(message, "'");
+}
+const char *SpecialVariableAssignment::what() { return message; }
+
 double *VariableManager::add_variable(const char *var_name) {
   if (var_count > 99)
     throw mu::ParserError("Variable buffer overflow.");
+  if (var_name[0] == '$') {
+    throw SpecialVariableAssignment(var_name);
+  }
   variable_storage[var_count] = 0;
   double *addr = &variable_storage[var_count];
   var_count++;

@@ -2,6 +2,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <iterator>
 #include <muParser.h>
 #include <optional>
@@ -91,4 +92,14 @@ public:
   std::string *top() { return &list[head]; }
   void confirm_current_expression();
   void reset() { index = head; }
+};
+
+class SpecialVariableAssignment : public std::exception {
+private:
+  char var_name[5];
+  char message[256];
+
+public:
+  SpecialVariableAssignment(const char *vname);
+  virtual const char *what();
 };
