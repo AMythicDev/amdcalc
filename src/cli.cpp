@@ -130,6 +130,7 @@ int main(int argc, char *argv[]) {
     }
   } catch (Term::Exception &e) {
     std::cout << e.what() << std::endl;
+    return -1;
   }
 
   History history;
