@@ -82,28 +82,28 @@ void handle_key_event(Term::Key key, std::string **expression, History &history,
     break;
   }
   case Term::Key::ArrowUp: {
-    std::uint16_t to_move = (*expression)->length();
-    if (to_move != 0)
-      std::cout << Term::cursor_left(to_move) << Term::clear_eol();
     std::optional<std::string *> prev = history.previous();
     if (prev.has_value()) {
+      std::uint16_t to_move = (*expression)->length();
+      if (to_move != 0)
+        std::cout << Term::cursor_left(to_move) << Term::clear_eol();
       *expression = prev.value();
+      std::cout << **expression;
+      std::cout.flush();
     }
-    std::cout << **expression;
-    std::cout.flush();
     break;
   }
   case Term::Key::ArrowDown: {
-    std::uint16_t to_move = (*expression)->length();
-    if (to_move != 0) {
-      std::cout << Term::cursor_left(to_move) << Term::clear_eol();
-    }
     std::optional<std::string *> next = history.next();
     if (next.has_value()) {
+      std::uint16_t to_move = (*expression)->length();
+      if (to_move != 0) {
+        std::cout << Term::cursor_left(to_move) << Term::clear_eol();
+      }
       *expression = next.value();
+      std::cout << **expression;
+      std::cout.flush();
     }
-    std::cout << **expression;
-    std::cout.flush();
     break;
   }
   default: {
