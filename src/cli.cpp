@@ -10,6 +10,7 @@
 #include <iostream>
 #include <optional>
 #include <string>
+#include <string_view>
 
 template <typename T> T saturating_sub(T n1, T n2) {
   if (n1 < n2) {
@@ -39,7 +40,7 @@ void handle_key_event(Term::Key key, std::string **expression, History &history,
     }
     (*expression)->erase(--insertion_col, 1);
     std::cout << Term::cursor_left(1) << Term::clear_eol()
-              << (*expression)->substr(insertion_col);
+              << std::string_view((*expression)->c_str()).substr(insertion_col);
     std::uint16_t to_move =
         saturating_sub((std::uint16_t)(*expression)->length(), insertion_col);
     if (to_move != 0)
@@ -52,7 +53,8 @@ void handle_key_event(Term::Key key, std::string **expression, History &history,
       break;
     }
     (*expression)->erase(insertion_col, 1);
-    std::cout << Term::clear_eol() << (*expression)->substr(insertion_col);
+    std::cout << Term::clear_eol()
+              << std::string_view((*expression)->c_str()).substr(insertion_col);
     std::uint16_t to_move =
         saturating_sub((std::uint16_t)(*expression)->length(), insertion_col);
     if (to_move != 0)
