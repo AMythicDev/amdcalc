@@ -118,7 +118,7 @@ void handle_key_event(Term::Key key, std::string **expression, History &history,
   }
 }
 
-int main(int argc, char *argv[]) {
+int expression_solver() {
   try {
     Term::terminal.setOptions(Term::Option::NoClearScreen,
                               Term::Option::NoSignalKeys, Term::Option::Cursor,
@@ -186,3 +186,5 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
+
+int main(int argc, char *argv[]) { std::cout << "Enter number of variables: "; }

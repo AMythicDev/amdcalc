@@ -1,4 +1,5 @@
 #pragma once
+#include <Eigen/Dense>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -72,6 +73,18 @@ public:
     return EvaluationIterator(&eval_arr[eval_count]);
   }
   uint16_t get_total_exp_count() { return total_expr_count; }
+};
+
+class EquationSolver {
+  Eigen::MatrixXd coffs;
+  Eigen::VectorXd consts;
+  std::uint8_t var_count;
+
+  EquationSolver(std::uint8_t vars) {
+    var_count = vars;
+    coffs = Eigen::MatrixXd(vars, vars);
+    consts = Eigen::VectorXd(vars);
+  }
 };
 
 class History {
