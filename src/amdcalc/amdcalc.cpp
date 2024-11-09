@@ -11,7 +11,7 @@ SpecialVariableAssignment::SpecialVariableAssignment(const char *vname) {
   strcat(message, var_name);
   strcat(message, "'");
 }
-const char *SpecialVariableAssignment::what() { return message; }
+const char *SpecialVariableAssignment::what() const noexcept { return message; }
 
 double *VariableManager::add_variable(const char *var_name) {
   if (var_count > 99)

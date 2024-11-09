@@ -114,5 +114,5 @@ private:
 
 public:
   SpecialVariableAssignment(const char *vname);
-  virtual const char *what();
+  const char *what() const noexcept;
 };
