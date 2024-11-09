@@ -86,6 +86,7 @@ void cli_prompt::handle_key_event(Term::Key key, std::string **expression,
         std::cout << Term::cursor_left(to_move) << Term::clear_eol();
       *expression = prev.value();
       std::cout << **expression;
+      insertion_col = (*expression)->length();
       std::cout.flush();
     }
     break;
@@ -99,6 +100,7 @@ void cli_prompt::handle_key_event(Term::Key key, std::string **expression,
       }
       *expression = next.value();
       std::cout << **expression;
+      insertion_col = (*expression)->length();
       std::cout.flush();
     }
     break;
