@@ -15,10 +15,7 @@ template <typename T> T saturating_sub(T n1, T n2) {
   return n1 - n2;
 }
 
-void cli_prompt::handle_key_event(Term::Key key, std::string **expression,
-                                  History &history,
-                                  std::uint16_t &insertion_col, bool &corfirm,
-                                  bool &quit) {
+void cli_prompt::handle_key_event(Term::Key key) {
   switch (key) {
   case Term::Key::Ctrl_C: {
     quit = true;
@@ -29,32 +26,32 @@ void cli_prompt::handle_key_event(Term::Key key, std::string **expression,
     break;
   }
   case Term::Key::Enter: {
-    corfirm = true;
+    confirm = true;
     break;
   }
   case Term::Key::Backspace: {
     if (insertion_col == 0) {
       break;
     }
-    (*expression)->erase(--insertion_col, 1);
+    (*input)->erase(--insertion_col, 1);
     std::cout << Term::cursor_left(1) << Term::clear_eol()
-              << std::string_view((*expression)->c_str()).substr(insertion_col);
+              << std::string_view((*input)->c_str()).substr(insertion_col);
     std::uint16_t to_move =
-        saturating_sub((std::uint16_t)(*expression)->length(), insertion_col);
+        saturating_sub((std::uint16_t)(*input)->length(), insertion_col);
     if (to_move != 0)
       std::cout << Term::cursor_left(to_move);
     std::cout.flush();
     break;
   }
   case Term::Key::Del: {
-    if (insertion_col == (*expression)->length()) {
+    if (insertion_col == (*input)->length()) {
       break;
     }
-    (*expression)->erase(insertion_col, 1);
+    (*input)->erase(insertion_col, 1);
     std::cout << Term::clear_eol()
-              << std::string_view((*expression)->c_str()).substr(insertion_col);
+              << std::string_view((*input)->c_str()).substr(insertion_col);
     std::uint16_t to_move =
-        saturating_sub((std::uint16_t)(*expression)->length(), insertion_col);
+        saturating_sub((std::uint16_t)(*input)->length(), insertion_col);
     if (to_move != 0)
       std::cout << Term::cursor_left(to_move);
     std::cout.flush();
@@ -70,7 +67,7 @@ void cli_prompt::handle_key_event(Term::Key key, std::string **expression,
     break;
   }
   case Term::Key::ArrowRight: {
-    if (insertion_col == (*expression)->length()) {
+    if (insertion_col == (*input)->length()) {
       break;
     }
     insertion_col++;
@@ -78,38 +75,13 @@ void cli_prompt::handle_key_event(Term::Key key, std::string **expression,
     std::cout.flush();
     break;
   }
-  case Term::Key::ArrowUp: {
-    std::optional<std::string *> prev = history.previous();
-    if (prev.has_value()) {
-      std::uint16_t to_move = (*expression)->length();
-      if (to_move != 0)
-        std::cout << Term::cursor_left(to_move) << Term::clear_eol();
-      *expression = prev.value();
-      std::cout << **expression;
-      insertion_col = (*expression)->length();
-      std::cout.flush();
-    }
-    break;
-  }
-  case Term::Key::ArrowDown: {
-    std::optional<std::string *> next = history.next();
-    if (next.has_value()) {
-      std::uint16_t to_move = (*expression)->length();
-      if (to_move != 0) {
-        std::cout << Term::cursor_left(to_move) << Term::clear_eol();
-      }
-      *expression = next.value();
-      std::cout << **expression;
-      insertion_col = (*expression)->length();
-      std::cout.flush();
-    }
-    break;
-  }
   default: {
+    if (handle_additional_keys(key)) {
+      break;
+    }
     if (key.isprint()) {
-      (*expression)->insert(insertion_col++, 1, key.name().c_str()[0]);
-      std::cout << Term::clear_eol()
-                << (*expression)->substr(insertion_col - 1);
+      (*input)->insert(insertion_col++, 1, key.name().c_str()[0]);
+      std::cout << Term::clear_eol() << (*input)->substr(insertion_col - 1);
       std::cout.flush();
     }
     break;
@@ -117,29 +89,55 @@ void cli_prompt::handle_key_event(Term::Key key, std::string **expression,
   }
 }
 
+bool expression_prompt::handle_additional_keys(Term::Key key) {
+  switch (key) {
+  case Term::Key::ArrowUp: {
+    std::optional<std::string *> prev = history.previous();
+    if (prev.has_value()) {
+      std::uint16_t to_move = (*input)->length();
+      if (to_move != 0)
+        std::cout << Term::cursor_left(to_move) << Term::clear_eol();
+      *input = prev.value();
+      std::cout << **input;
+      insertion_col = (*input)->length();
+      std::cout.flush();
+    }
+    return true;
+  }
+  case Term::Key::ArrowDown: {
+    std::optional<std::string *> next = history.next();
+    if (next.has_value()) {
+      std::uint16_t to_move = (*input)->length();
+      if (to_move != 0) {
+        std::cout << Term::cursor_left(to_move) << Term::clear_eol();
+      }
+      *input = next.value();
+      std::cout << **input;
+      insertion_col = (*input)->length();
+      std::cout.flush();
+    }
+    break;
+    return true;
+  }
+  }
+  return false;
+}
+
 input_response cli_prompt::get_input() {
-  std::uint16_t insertion_col = 0;
-  bool quit = false;
-  bool confirm = false;
-  input_response ip;
-
-  std::string *curr = history.top();
-  curr->clear();
-  std::string **expression = &curr;
-
-  std::cout << '$' << eval_num << ": ";
+  (*input)->clear();
+  std::cout << prompt_text;
   std::cout.flush();
 
   while (!quit && !confirm) {
     Term::Event event = Term::read_event();
     if (event.type() == Term::Event::Type::Key) {
       Term::Key key(event);
-      handle_key_event(key, expression, history, insertion_col, confirm, quit);
+      handle_key_event(key);
     }
     if (confirm) {
       std::cout << std::endl;
       ip.type = input_response_t::confirm;
-      ip.input = *expression;
+      ip.input = *input;
       break;
     }
     if (quit) {
