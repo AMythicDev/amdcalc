@@ -17,28 +17,27 @@ void expression_solver() {
   while (!quit) {
     cli_prompt prompt(solver.get_total_exp_count() + 1, history);
     input_response resp = prompt.get_input();
-
     if (resp.type == input_response_t::quit) {
       quit = true;
       break;
-    } else {
-      std::string *expression = resp.input.value();
-      solver.set_expression(*expression);
-      try {
-        solver.eval();
-      } catch (mu::Parser::exception_type &e) {
-        std::cout << "Error: " << e.GetMsg() << std::endl;
-        continue;
-      } catch (SpecialVariableAssignment &e) {
-        std::cout << "Error: " << e.what() << std::endl;
-        continue;
-      }
-      for (double it : solver) {
-        std::cout << it << std::endl;
-      }
-      history.confirm_current_expression();
-      history.reset();
     }
+
+    std::string *expression = resp.input.value();
+    solver.set_expression(*expression);
+    try {
+      solver.eval();
+    } catch (mu::Parser::exception_type &e) {
+      std::cout << "Error: " << e.GetMsg() << std::endl;
+      continue;
+    } catch (SpecialVariableAssignment &e) {
+      std::cout << "Error: " << e.what() << std::endl;
+      continue;
+    }
+    for (double it : solver) {
+      std::cout << it << std::endl;
+    }
+    history.confirm_current_expression();
+    history.reset();
   }
 }
 

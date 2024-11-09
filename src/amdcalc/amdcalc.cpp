@@ -16,9 +16,6 @@ const char *SpecialVariableAssignment::what() const noexcept { return message; }
 double *VariableManager::add_variable(const char *var_name) {
   if (var_count > 99)
     throw mu::ParserError("Variable buffer overflow.");
-  if (var_name[0] == '$') {
-    throw SpecialVariableAssignment(var_name);
-  }
   variable_storage[var_count] = 0;
   double *addr = &variable_storage[var_count];
   var_count++;
@@ -32,6 +29,9 @@ void VariableManager::reset() {
 
 double *VariableManager::add_variable_to_instance(const char *var_name,
                                                   void *vm_ptr) {
+  if (var_name[0] == '$') {
+    throw SpecialVariableAssignment(var_name);
+  }
   VariableManager *vm = (VariableManager *)vm_ptr;
   return vm->add_variable(var_name);
 }
@@ -61,7 +61,9 @@ void ExpressionSolver::eval() {
   std::string var_name;
   var_name.append("$");
   var_name.append(std::to_string(total_expr_count));
-  parser.DefineVar(var_name, &eval_arr[eval_count - 1]);
+  double *final_exp_var = vm.add_variable(var_name.c_str());
+  *final_exp_var = eval_arr[eval_count - 1];
+  parser.DefineVar(var_name, final_exp_var);
 }
 
 template <typename T> T History::wrapping_add(T num) {
