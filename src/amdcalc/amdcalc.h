@@ -10,11 +10,11 @@
 
 #define MAX_VARIABLE_COUNT 2048
 #define MAX_EVALUATION_ARRAY_SIZE 256
-#define HISTORY_CAPACITY 3
+#define HISTORY_CAPACITY 256
 
 class VariableManager {
   double variable_storage[MAX_VARIABLE_COUNT];
-  uint8_t var_count = 0;
+  uint16_t var_count = 0;
 
 public:
   double *add_variable(const char *var_name);
