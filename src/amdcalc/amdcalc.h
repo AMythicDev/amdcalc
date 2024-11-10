@@ -80,6 +80,7 @@ class EquationSolver {
   Eigen::VectorXd consts;
   std::uint8_t var_count;
 
+public:
   EquationSolver(std::uint8_t vars) {
     var_count = vars;
     coffs = Eigen::MatrixXd(vars, vars);

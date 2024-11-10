@@ -41,6 +41,18 @@ void expression_solver() {
   }
 }
 
+void equation_solver() {
+  std::string buffer;
+  input_response resp =
+      cli_prompt::easy_input(&buffer, "Enter number of variables: ");
+  if (resp == input_response::quit) {
+    return;
+  }
+  std::uint8_t n_var = std::stoi(buffer);
+
+  EquationSolver eqsolver(n_var);
+}
+
 int main(int argc, char *argv[]) {
   std::cout << std::setprecision(7);
   try {
@@ -57,8 +69,8 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  expression_solver();
+  equation_solver();
+  // expression_solver();
 
-  // std::cout << "Enter number of variables: ";
   return 0;
 }
