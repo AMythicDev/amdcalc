@@ -86,6 +86,16 @@ public:
     coffs = Eigen::MatrixXd(vars, vars);
     consts = Eigen::VectorXd(vars);
   }
+
+  void set_coff_at_index(std::uint8_t eqn_num, std::uint8_t var_num,
+                         double value) {
+    coffs(eqn_num, var_num) = value;
+  }
+  void set_const_for_eqn(std::uint8_t eqn_num, double value) {
+    consts(eqn_num) = value;
+  }
+
+  Eigen::VectorXd eval() { return coffs.ldlt().solve(consts); }
 };
 
 class History {

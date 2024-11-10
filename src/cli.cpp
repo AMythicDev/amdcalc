@@ -1,13 +1,13 @@
 #include "amdcalc/amdcalc.h"
 #include "cpp-terminal/exception.hpp"
 #include "cpp-terminal/tty.hpp"
-#include "muParser.h"
 #include "prompt.h"
 #include <cpp-terminal/event.hpp>
 #include <cpp-terminal/terminal.hpp>
 #include <cstdint>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <string>
 
 void expression_solver() {
@@ -52,6 +52,35 @@ void equation_solver() {
   std::uint8_t n_var = std::stoi(buffer);
 
   EquationSolver eqsolver(n_var);
+
+  for (int eq = 1; eq <= n_var; eq++) {
+    std::cout << "Enter variables for Equation " << (int)eq << std::endl;
+
+    for (int var = 1; var <= n_var; var++) {
+      std::stringstream prompt_text;
+      prompt_text << "Variable " << (int)var << ": ";
+      input_response resp =
+          cli_prompt::easy_input(&buffer, prompt_text.str().c_str());
+      if (resp == input_response::quit) {
+        return;
+      }
+      std::uint8_t coff = std::stoi(buffer);
+      eqsolver.set_coff_at_index(eq - 1, var - 1, coff);
+    }
+
+    std::stringstream prompt_text;
+    prompt_text << "Constant " << (int)eq << ": ";
+    input_response resp =
+        cli_prompt::easy_input(&buffer, prompt_text.str().c_str());
+    if (resp == input_response::quit) {
+      return;
+    }
+    std::uint8_t cons = std::stoi(buffer);
+    eqsolver.set_const_for_eqn(eq - 1, cons);
+  }
+
+  Eigen::VectorXd results = eqsolver.eval();
+  std::cout << results << std::endl;
 }
 
 int main(int argc, char *argv[]) {
