@@ -5,6 +5,7 @@
 #include "prompt.h"
 #include <cpp-terminal/event.hpp>
 #include <cpp-terminal/terminal.hpp>
+#include <cstdint>
 #include <iomanip>
 #include <iostream>
 #include <string>
@@ -17,12 +18,12 @@ void expression_solver() {
   while (!quit) {
     expression_prompt prompt(solver.get_total_exp_count() + 1, history);
     input_response resp = prompt.get_input();
-    if (resp.type == input_response_t::quit) {
+    if (resp == input_response::quit) {
       quit = true;
       break;
     }
 
-    std::string *expression = resp.input.value();
+    std::string *expression = history.top();
     solver.set_expression(*expression);
     try {
       solver.eval();

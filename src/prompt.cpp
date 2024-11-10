@@ -136,16 +136,13 @@ input_response cli_prompt::get_input() {
     }
     if (confirm) {
       std::cout << std::endl;
-      ip.type = input_response_t::confirm;
-      ip.input = *input;
-      break;
+      return input_response::confirm;
     }
     if (quit) {
       std::cout << '\r' << Term::clear_eol() << "Bye" << std::endl;
-      ip.type = input_response_t::quit;
-      break;
+      return input_response::quit;
     }
   }
   std::cout.flush();
-  return ip;
+  return input_response::quit;
 }

@@ -1,17 +1,11 @@
 #pragma once
 #include "amdcalc/amdcalc.h"
 #include "cpp-terminal/key.hpp"
-#include <optional>
 #include <string>
 
-enum class input_response_t {
+enum class input_response {
   quit,
   confirm,
-};
-
-struct input_response {
-  input_response_t type;
-  std::optional<std::string *> input = std::nullopt;
 };
 
 class cli_prompt {
@@ -28,6 +22,15 @@ public:
   cli_prompt(std::string **input) : input(input) {}
   cli_prompt(std::string **input, const char *prompt_text)
       : input(input), prompt_text(prompt_text) {}
+  static input_response easy_input(std::string *buffer) {
+    cli_prompt prompt(&buffer);
+    return prompt.get_input();
+  }
+  static input_response easy_input(std::string *buffer,
+                                   const char *prompt_text) {
+    cli_prompt prompt(&buffer, prompt_text);
+    return prompt.get_input();
+  }
   virtual bool handle_additional_keys(Term::Key key) { return false; }
   input_response get_input();
 };
