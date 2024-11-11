@@ -2,7 +2,6 @@
 #include "cpp-terminal/exception.hpp"
 #include "cpp-terminal/tty.hpp"
 #include "prompt.h"
-#include <cpp-terminal/event.hpp>
 #include <cpp-terminal/terminal.hpp>
 #include <cstdint>
 #include <iomanip>
@@ -54,7 +53,8 @@ void equation_solver() {
   EquationSolver eqsolver(n_var);
 
   for (int eq = 1; eq <= n_var; eq++) {
-    std::cout << "Enter variables for Equation " << (int)eq << std::endl;
+    std::cout << "Enter cofficient for each variable in equation " << (int)eq
+              << std::endl;
 
     for (int var = 1; var <= n_var; var++) {
       std::stringstream prompt_text;
@@ -64,18 +64,18 @@ void equation_solver() {
       if (resp == input_response::quit) {
         return;
       }
-      std::uint8_t coff = std::stoi(buffer);
+      double coff = std::stod(buffer);
       eqsolver.set_coff_at_index(eq - 1, var - 1, coff);
     }
 
     std::stringstream prompt_text;
-    prompt_text << "Constant " << (int)eq << ": ";
+    prompt_text << "Enter constant " << (int)eq << ": ";
     input_response resp =
         cli_prompt::easy_input(&buffer, prompt_text.str().c_str());
     if (resp == input_response::quit) {
       return;
     }
-    std::uint8_t cons = std::stoi(buffer);
+    double cons = std::stod(buffer);
     eqsolver.set_const_for_eqn(eq - 1, cons);
   }
 
