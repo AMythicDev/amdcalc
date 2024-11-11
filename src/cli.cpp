@@ -12,13 +12,11 @@
 void expression_solver() {
   History history;
   ExpressionSolver solver;
-  bool quit = false;
 
-  while (!quit) {
+  while (true) {
     expression_prompt prompt(solver.get_total_exp_count() + 1, history);
     input_response resp = prompt.get_input();
     if (resp == input_response::quit) {
-      quit = true;
       break;
     }
 
@@ -51,6 +49,8 @@ void equation_solver() {
   std::uint8_t n_var = std::stoi(buffer);
 
   EquationSolver eqsolver(n_var);
+  History history;
+  ExpressionSolver solver;
 
   for (int eq = 1; eq <= n_var; eq++) {
     std::cout << "Enter cofficient for each variable in equation " << (int)eq
@@ -58,25 +58,53 @@ void equation_solver() {
 
     for (int var = 1; var <= n_var; var++) {
       std::stringstream prompt_text;
-      prompt_text << "Variable " << (int)var << ": ";
-      input_response resp =
-          cli_prompt::easy_input(&buffer, prompt_text.str().c_str());
+      prompt_text << "Variable " << (int)var << " $"
+                  << solver.get_total_exp_count() + 1 << ": ";
+
+      expression_prompt prompt(prompt_text.str(), history);
+      input_response resp = prompt.get_input();
       if (resp == input_response::quit) {
-        return;
+        break;
       }
-      double coff = std::stod(buffer);
-      eqsolver.set_coff_at_index(eq - 1, var - 1, coff);
+
+      std::string *expression = history.top();
+      solver.set_expression(*expression);
+      try {
+        solver.eval();
+      } catch (mu::Parser::exception_type &e) {
+        std::cout << "Error: " << e.GetMsg() << std::endl;
+        continue;
+      } catch (SpecialVariableAssignment &e) {
+        std::cout << "Error: " << e.what() << std::endl;
+        continue;
+      }
+
+      eqsolver.set_coff_at_index(eq - 1, var - 1, *solver.end());
     }
 
     std::stringstream prompt_text;
-    prompt_text << "Enter constant " << (int)eq << ": ";
-    input_response resp =
-        cli_prompt::easy_input(&buffer, prompt_text.str().c_str());
+    prompt_text << "Constant " << (int)eq << " $"
+                << solver.get_total_exp_count() + 1 << ": ";
+
+    expression_prompt prompt(prompt_text.str(), history);
+    input_response resp = prompt.get_input();
     if (resp == input_response::quit) {
-      return;
+      break;
     }
-    double cons = std::stod(buffer);
-    eqsolver.set_const_for_eqn(eq - 1, cons);
+
+    std::string *expression = history.top();
+    solver.set_expression(*expression);
+    try {
+      solver.eval();
+    } catch (mu::Parser::exception_type &e) {
+      std::cout << "Error: " << e.GetMsg() << std::endl;
+      continue;
+    } catch (SpecialVariableAssignment &e) {
+      std::cout << "Error: " << e.what() << std::endl;
+      continue;
+    }
+
+    eqsolver.set_const_for_eqn(eq - 1, *solver.end());
   }
 
   Eigen::VectorXd results = eqsolver.eval();
