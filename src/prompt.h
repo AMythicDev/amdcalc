@@ -2,6 +2,7 @@
 #include "amdcalc/amdcalc.h"
 #include "cpp-terminal/key.hpp"
 #include <string>
+#include <string_view>
 
 enum class input_response {
   quit,
@@ -15,12 +16,12 @@ protected:
   bool confirm = false;
   std::string **input;
   input_response ip;
-  const char *prompt_text = ": ";
+  std::string_view prompt_text = ": ";
   void handle_key_event(Term::Key key);
 
 public:
   cli_prompt(std::string **input) : input(input) {}
-  cli_prompt(std::string **input, const char *prompt_text)
+  cli_prompt(std::string **input, std::string_view prompt_text)
       : input(input), prompt_text(prompt_text) {}
   static input_response easy_input(std::string *buffer) {
     cli_prompt prompt(&buffer);
@@ -45,5 +46,8 @@ public:
             &curr,
             (std::string("$") + std::to_string(eval_num) + ": ").c_str()),
         history(history), curr(history.top()) {};
+  expression_prompt(std::string_view prompt, History &history)
+      : cli_prompt(&curr, prompt), history(history), curr(history.top()) {};
+
   bool handle_additional_keys(Term::Key key) override;
 };
