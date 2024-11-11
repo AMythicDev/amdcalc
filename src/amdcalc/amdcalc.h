@@ -1,5 +1,4 @@
 #pragma once
-
 #include <Eigen/Dense>
 #include <cstddef>
 #include <cstdint>
@@ -71,7 +70,7 @@ public:
   void eval();
   EvaluationIterator begin() const { return EvaluationIterator(&eval_arr[0]); }
   EvaluationIterator end() const {
-    return EvaluationIterator(&eval_arr[eval_count]);
+    return EvaluationIterator(&eval_arr[eval_count - 1]);
   }
   uint16_t get_total_exp_count() { return total_expr_count; }
 };
