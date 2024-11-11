@@ -95,7 +95,7 @@ public:
     consts(eqn_num) = value;
   }
 
-  Eigen::VectorXd eval() { return coffs.ldlt().solve(consts); }
+  Eigen::VectorXd eval() { return coffs.colPivHouseholderQr().solve(consts); }
 };
 
 class History {
