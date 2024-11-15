@@ -7,6 +7,7 @@
 #include <iterator>
 #include <muParser.h>
 #include <optional>
+#include <variant>
 
 #define MAX_VARIABLE_COUNT 2048
 #define MAX_EVALUATION_ARRAY_SIZE 256
@@ -76,26 +77,21 @@ public:
 };
 
 class EquationSolver {
-  Eigen::MatrixXd coffs;
-  Eigen::VectorXd consts;
+  using coff_t = std::variant<Eigen::Matrix2d, Eigen::Matrix3d, Eigen::Matrix4d,
+                              Eigen::MatrixXd>;
+  using consts_t = std::variant<Eigen::Vector2d, Eigen::Vector3d,
+                                Eigen::Vector4d, Eigen::VectorXd>;
+
+  coff_t coffs;
+  consts_t consts;
   std::uint8_t var_count;
 
 public:
-  EquationSolver(std::uint8_t vars) {
-    var_count = vars;
-    coffs = Eigen::MatrixXd(vars, vars);
-    consts = Eigen::VectorXd(vars);
-  }
-
+  EquationSolver(std::uint8_t vars);
   void set_coff_at_index(std::uint8_t eqn_num, std::uint8_t var_num,
-                         double value) {
-    coffs(eqn_num, var_num) = value;
-  }
-  void set_const_for_eqn(std::uint8_t eqn_num, double value) {
-    consts(eqn_num) = value;
-  }
-
-  Eigen::VectorXd eval() { return coffs.colPivHouseholderQr().solve(consts); }
+                         double value);
+  void set_const_for_eqn(std::uint8_t eqn_num, double value);
+  Eigen::VectorXd eval();
 };
 
 class History {

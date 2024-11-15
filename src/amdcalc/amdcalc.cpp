@@ -1,4 +1,5 @@
 #include "amdcalc.h"
+#include "Eigen/src/Core/Matrix.h"
 #include "muParserDef.h"
 #include <cstdint>
 #include <cstring>
@@ -115,4 +116,96 @@ void History::confirm_current_expression() {
   }
 
   index = head;
+}
+
+EquationSolver::EquationSolver(std::uint8_t vars) {
+  var_count = vars;
+  switch (vars) {
+  case 2:
+    coffs = Eigen::Matrix2d(vars, vars);
+    break;
+  case 3:
+    coffs = Eigen::Matrix3d(vars, vars);
+    break;
+  case 4:
+    coffs = Eigen::Matrix4d(vars, vars);
+    break;
+  }
+  consts = Eigen::VectorXd(vars);
+}
+
+void EquationSolver::set_coff_at_index(std::uint8_t eqn_num,
+                                       std::uint8_t var_num, double value) {
+  switch (var_count) {
+  case 2: {
+    Eigen::Matrix2d matrix = std::get<Eigen::Matrix2d>(coffs);
+    matrix(eqn_num, var_num) = value;
+    break;
+  }
+  case 3: {
+    Eigen::Matrix3d matrix = std::get<Eigen::Matrix3d>(coffs);
+    matrix(eqn_num, var_num) = value;
+    break;
+  }
+  case 4: {
+    Eigen::Matrix4d matrix = std::get<Eigen::Matrix4d>(coffs);
+    matrix(eqn_num, var_num) = value;
+    break;
+  }
+  default: {
+    Eigen::MatrixXd cons = std::get<Eigen::MatrixXd>(coffs);
+    cons(eqn_num) = value;
+    break;
+  }
+  }
+}
+
+void EquationSolver::set_const_for_eqn(std::uint8_t eqn_num, double value) {
+  switch (var_count) {
+  case 2: {
+    Eigen::Vector2d cons = std::get<Eigen::Vector2d>(consts);
+    cons(eqn_num) = value;
+    break;
+  }
+  case 3: {
+    Eigen::Vector3d cons = std::get<Eigen::Vector3d>(consts);
+    cons(eqn_num) = value;
+    break;
+  }
+  case 4: {
+    Eigen::Vector4d cons = std::get<Eigen::Vector4d>(consts);
+    cons(eqn_num) = value;
+    break;
+  }
+  default: {
+    Eigen::VectorXd cons = std::get<Eigen::VectorXd>(consts);
+    cons(eqn_num) = value;
+    break;
+  }
+  }
+}
+
+Eigen::VectorXd EquationSolver::eval() {
+  switch (var_count) {
+  case 2: {
+    Eigen::Matrix2d matrix = std::get<Eigen::Matrix2d>(coffs);
+    Eigen::Vector2d cons = std::get<Eigen::Vector2d>(consts);
+    return matrix.colPivHouseholderQr().solve(cons);
+  }
+  case 3: {
+    Eigen::Matrix3d matrix = std::get<Eigen::Matrix3d>(coffs);
+    Eigen::Vector3d cons = std::get<Eigen::Vector3d>(consts);
+    return matrix.colPivHouseholderQr().solve(cons);
+  }
+  case 4: {
+    Eigen::Matrix4d matrix = std::get<Eigen::Matrix4d>(coffs);
+    Eigen::Vector4d cons = std::get<Eigen::Vector4d>(consts);
+    return matrix.colPivHouseholderQr().solve(cons);
+  }
+  default: {
+    Eigen::MatrixXd matrix = std::get<Eigen::MatrixXd>(coffs);
+    Eigen::VectorXd cons = std::get<Eigen::VectorXd>(consts);
+    return matrix.colPivHouseholderQr().solve(cons);
+  }
+  }
 }
