@@ -112,7 +112,7 @@ void equation_solver() {
 }
 
 int main(int argc, char *argv[]) {
-  std::cout << std::setprecision(7);
+  std::cout << std::setprecision(10);
   try {
     Term::terminal.setOptions(Term::Option::NoClearScreen,
                               Term::Option::NoSignalKeys, Term::Option::Cursor,
