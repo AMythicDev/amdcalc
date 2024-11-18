@@ -1,6 +1,6 @@
 #include "amdcalc.h"
-#include "Eigen/src/Core/Matrix.h"
 #include "muParserDef.h"
+#include <Eigen/Dense>
 #include <cstdint>
 #include <cstring>
 #include <optional>
