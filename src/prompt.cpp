@@ -1,5 +1,5 @@
 #include "prompt.h"
-#include "amdcalc/amdcalc.h"
+#include "amdcalc/amdcalc.hpp"
 #include "cpp-terminal/cursor.hpp"
 #include "cpp-terminal/input.hpp"
 #include "cpp-terminal/key.hpp"

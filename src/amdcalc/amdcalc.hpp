@@ -13,6 +13,11 @@
 #define MAX_EVALUATION_ARRAY_SIZE 256
 #define HISTORY_CAPACITY 256
 
+enum class CalculatorMode {
+  ExpSolver,
+  EqnSolver,
+};
+
 class VariableManager {
   double variable_storage[MAX_VARIABLE_COUNT];
   uint16_t var_count = 0;

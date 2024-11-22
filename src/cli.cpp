@@ -1,4 +1,4 @@
-#include "amdcalc/amdcalc.h"
+#include "amdcalc/amdcalc.hpp"
 #include "cpp-terminal/exception.hpp"
 #include "cpp-terminal/tty.hpp"
 #include "prompt.h"

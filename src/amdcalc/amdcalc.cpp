@@ -1,4 +1,4 @@
-#include "amdcalc.h"
+#include "amdcalc.hpp"
 #include "muParserDef.h"
 #include <Eigen/Dense>
 #include <cstdint>

@@ -1,5 +1,5 @@
 #pragma once
-#include "amdcalc/amdcalc.h"
+#include "amdcalc/amdcalc.hpp"
 #include "cpp-terminal/key.hpp"
 #include <string>
 #include <string_view>
